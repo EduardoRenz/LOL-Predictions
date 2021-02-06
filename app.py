@@ -13,6 +13,7 @@ from xgboost import XGBClassifier
 from feature_generator import set_all_features,get_teams_df
 from NNModel import NNModel
 from constants import TARGET
+import requests
 
 
 st.set_page_config(layout="wide")
@@ -21,8 +22,19 @@ st.set_page_config(layout="wide")
 def getGames(years=list(range(2015,dt.datetime.now().year +1,1)),link="https://gol.gg/tournament/tournament-matchlist/LPL%20Spring%20{}/"):
   df = pd.DataFrame()
   for year in years:
-    result = pd.read_html(link.replace('{}',str(year)))
+    final_link = link.replace('{}',str(year))
+    result = pd.read_html(requests.get(final_link).text)
     df = df.append(result,ignore_index=True)
+  return df
+
+@st.cache
+def get_all_games(links,years=list(range(2015,dt.datetime.now().year +1,1))):
+  df = pd.DataFrame()
+  for link in links.values():
+    for year in years:
+      final_link = link.replace('{}',str(year))
+      result = pd.read_html(requests.get(final_link).text)
+      df = df.append(result,ignore_index=True)
   return df
 
 @st.cache
@@ -46,15 +58,26 @@ def predictNextGames(next_games):
     next_games['Prediction'] = next_games.apply(lambda x: nn.predict(x['Blue Side'],x['Red Side']),axis=1 )
     return next_games
 
- 
 
-games = getGames()
+GAME_LINKS =  { 
+  "LPL":"https://gol.gg/tournament/tournament-matchlist/LPL%20Spring%20{}/",
+  "LCK":"https://gol.gg/tournament/tournament-matchlist/LCK%20Spring%20{}/",
+  "CBLOL1":"https://gol.gg/tournament/tournament-matchlist/CBLOL%20Split%201%20{}/",
+  "CBLOL2":"https://gol.gg/tournament/tournament-matchlist/CBLOL%20Split%202%20{}/"
+}
+
+
+# ============================= SIDEBAR ===========================
+st.sidebar.subheader("Treinar")
+#tournament = st.sidebar.selectbox("Tournament",list(GAME_LINKS.keys()))
+# ================================================================
+games =  get_all_games(GAME_LINKS) #getGames(link=GAME_LINKS[tournament])
 df = set_all_features(games)
 next_games = games[games.Score == '-']
 teams_df = get_teams_df(df)
 
-backtest_df = df[-10:]
-df = df[:-10]
+backtest_df = df[-20:]
+df = df[:-20]
 
 # Models
 nn = NNModel('NN',df,teams_df)
@@ -79,6 +102,13 @@ backtest_result = runBackTest(nn,backtest_df)
 next_games = predictNextGames(next_games)
 
 # ================================ LAYOUT ================================
+
+
+treinar_nn = st.sidebar.button("Treinar NN")
+
+if treinar_nn:
+  nn.train(X_train,y_train,X_test,y_test)
+
 st.header("Predict LPL")
 model_stats_left,model_stats_center,model_stats_right = st.beta_columns((1,1,1))
 model_stats_left.subheader('NN')
@@ -105,3 +135,5 @@ result_right.text(nn_probabilitys)
 
 st.header("Next Games")
 st.dataframe(next_games)
+
+df.to_csv('lpl.csv')
