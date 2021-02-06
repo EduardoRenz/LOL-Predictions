@@ -55,15 +55,17 @@ def runBackTest(model,backtest_df):
     return (f"{corrects} / {of} on backtest of {model.model_name}")
 
 def predictNextGames(next_games):
-    next_games['Prediction'] = next_games.apply(lambda x: nn.predict(x['Blue Side'],x['Red Side']),axis=1 )
-    return next_games
+    next_predicts = next_games.copy()
+    next_predicts['Prediction'] = next_predicts.apply(lambda x: nn.predict(x['Blue Side'],x['Red Side']),axis=1 )
+    return next_predicts
 
 
 GAME_LINKS =  { 
   "LPL":"https://gol.gg/tournament/tournament-matchlist/LPL%20Spring%20{}/",
   "LCK":"https://gol.gg/tournament/tournament-matchlist/LCK%20Spring%20{}/",
   "CBLOL1":"https://gol.gg/tournament/tournament-matchlist/CBLOL%20Split%201%20{}/",
-  "CBLOL2":"https://gol.gg/tournament/tournament-matchlist/CBLOL%20Split%202%20{}/"
+  "CBLOL2":"https://gol.gg/tournament/tournament-matchlist/CBLOL%20Split%202%20{}/",
+  "LCS":"https://gol.gg/tournament/tournament-matchlist/LCS%20Spring%20{}/"
 }
 
 
@@ -133,7 +135,11 @@ result_left,result_center,result_right =  st.beta_columns(3)
 result_left.success(nn_prediction)
 result_right.text(nn_probabilitys)
 
+
+st.header("Last Players MAtch")
+st.table(df[((df.blue == blue) | (df.blue ==red)) & ((df.red == blue) | (df.red ==red))][["blue","red","winner_name","blue_streak","red_streak","blue_winst_against","red_winst_against","blue_rolling_win_avg_5","red_rolling_win_avg_5"]].astype(str))
+
 st.header("Next Games")
 st.dataframe(next_games)
 
-df.to_csv('lpl.csv')
+df.to_csv('lol.csv')

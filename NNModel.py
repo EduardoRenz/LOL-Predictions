@@ -33,6 +33,10 @@ class NNModel(BaseModel):
         model.add(keras.layers.Dense(32))
         model.add(keras.layers.LeakyReLU())
         model.add(keras.layers.Dropout(0.2))
+
+        model.add(keras.layers.Dense(32))
+        model.add(keras.layers.LeakyReLU())
+        model.add(keras.layers.Dropout(0.2))
         
         model.add(keras.layers.Dense(1,activation='sigmoid'))
         
@@ -49,7 +53,7 @@ class NNModel(BaseModel):
         y_test_encoded = y_test
         # Transform the features
         X_test_encoded = self.column_transformer.transform(X_test)
-        self.clf.fit(X_train_encoded,y_train_encoded,validation_data=(X_test_encoded,y_test_encoded),epochs=45,callbacks=[self.checkpoint],verbose=1,batch_size=5)
+        self.clf.fit(X_train_encoded,y_train_encoded,validation_data=(X_test_encoded,y_test_encoded),epochs=50,callbacks=[self.checkpoint],verbose=1,batch_size=5)
         print("Training Finished")
 
 
