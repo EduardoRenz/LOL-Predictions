@@ -65,7 +65,9 @@ GAME_LINKS =  {
   "LCK":"https://gol.gg/tournament/tournament-matchlist/LCK%20Spring%20{}/",
   "CBLOL1":"https://gol.gg/tournament/tournament-matchlist/CBLOL%20Split%201%20{}/",
   "CBLOL2":"https://gol.gg/tournament/tournament-matchlist/CBLOL%20Split%202%20{}/",
-  "LCS":"https://gol.gg/tournament/tournament-matchlist/LCS%20Spring%20{}/"
+  #"CBLOLAcademy":"https://gol.gg/tournament/tournament-matchlist/CBLOL%20Academy%20Split%201%20{}/",
+  "LCS":"https://gol.gg/tournament/tournament-matchlist/LCS%20Spring%20{}/",
+  "LEC": "https://gol.gg/tournament/tournament-matchlist/LEC%20Spring%20{}/"
 }
 
 
@@ -85,8 +87,8 @@ df = df[:-20]
 nn = NNModel('NN',df,teams_df)
 
 # SPLIT X & Y
-X = df[:-10][nn.features].copy()
-y = df[:-10][TARGET].copy()
+X = df[nn.features].copy()
+y = df[TARGET].copy()
 # Split and encode train & test
 X_train, X_test,y_train,y_test  = train_test_split(X,y,test_size=0.2,stratify=y,random_state=42)
 # ====================== NN Model =================
@@ -111,7 +113,7 @@ treinar_nn = st.sidebar.button("Treinar NN")
 if treinar_nn:
   nn.train(X_train,y_train,X_test,y_test)
 
-st.header("Predict LPL")
+st.header("Predict LOL")
 model_stats_left,model_stats_center,model_stats_right = st.beta_columns((1,1,1))
 model_stats_left.subheader('NN')
 model_stats_left.text(nn_evaluation)
