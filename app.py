@@ -139,7 +139,7 @@ result_right.text(nn_probabilitys)
 
 
 st.header("Last Players MAtch")
-st.table(df[((df.blue == blue) | (df.blue ==red)) & ((df.red == blue) | (df.red ==red))][["blue","red","winner_name","blue_streak","red_streak","blue_winst_against","red_winst_against","blue_rolling_win_avg_5","red_rolling_win_avg_5"]].astype(str))
+st.table(df[((df.blue == blue) | (df.blue ==red)) & ((df.red == blue) | (df.red ==red))].sort_values('date')[["blue","red","winner_name","blue_streak","red_streak","blue_winst_against","red_winst_against","blue_rolling_win_avg_5","red_rolling_win_avg_5"]].astype(str))
 
 st.header("Next Games")
 st.dataframe(next_games)

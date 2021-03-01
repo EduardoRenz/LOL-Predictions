@@ -54,7 +54,7 @@ class NNModel(BaseModel):
         y_test_encoded = y_test
         # Transform the features
         X_test_encoded = self.column_transformer.transform(X_test)
-        self.clf.fit(X_train_encoded,y_train_encoded,validation_data=(X_test_encoded,y_test_encoded),epochs=40,callbacks=[self.checkpoint],verbose=1,batch_size=5)
+        self.clf.fit(X_train_encoded,y_train_encoded,validation_data=(X_test_encoded,y_test_encoded),epochs=25,callbacks=[self.checkpoint],verbose=1,batch_size=5)
         print("Training Finished")
 
 

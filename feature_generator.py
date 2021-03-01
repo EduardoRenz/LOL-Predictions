@@ -8,6 +8,7 @@ def configure_df(games):
   # Date
   df.Date = pd.to_datetime(df['Date'])
   df = df.sort_values(by='Date')
+  df = df[df.Score != '-']
   df = df[df.Date < (datetime.datetime.now() - datetime.timedelta(days=1))]
   #Rename column
   df.rename(columns={'Blue Side':'blue','Red Side':'red','Date':'date'},inplace=True,errors='ignore')
@@ -17,6 +18,7 @@ def configure_df(games):
   df['winner'] = df.apply(lambda x : 'blue' if x.blue_score > x.red_score else 'red',axis=1 )
   df['winner_name'] = df.apply(lambda x : x.blue if x.blue_score > x.red_score else x.red,axis=1 ) 
   df['blue_is_winner'] = df['winner'] == 'blue'
+  df['year'] = df.date.dt.year
   #Unecessary columns
   df.drop(columns=['Unnamed: 4','Patch','Game','Score'],inplace=True,errors='ignore')
   #Set types category
