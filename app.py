@@ -8,7 +8,7 @@ from sklearn.metrics import classification_report,confusion_matrix
 from sklearn.preprocessing import StandardScaler,LabelEncoder
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.model_selection import train_test_split
-from xgboost import XGBClassifier
+from XGBModel import XGBModel
 
 from feature_generator import set_all_features,get_teams_df
 from NNModel import NNModel
@@ -86,6 +86,7 @@ df = df[:-20]
 
 # Models
 nn = NNModel('NN',df,teams_df)
+xgb = XGBModel('XGB',df,teams_df)
 
 # SPLIT X & Y
 X = df[nn.features].copy()
@@ -95,15 +96,19 @@ X_train, X_test,y_train,y_test  = train_test_split(X,y,test_size=0.2,stratify=y,
 # ====================== NN Model =================
 nn.load_model()
 #nn.train(X_train,y_train,X_test,y_test)
+# ========================= XGB Model ================
+xgb.train(X_train,y_train)
 
 
 X_test_mounted = getXTestMounted(X_test)
-
 #Evaluations
 nn_evaluation = nn.evaluate(X_test,y_test)
 nn_mounted_evaluation = nn.evaluate(X_test_mounted,y_test)
-backtest_result = runBackTest(nn,backtest_df)
+xgb_evaluation = xgb.evaluate(X_test,y_test)
+xgb_mounted_evaluation = xgb.evaluate(X_test_mounted,y_test)
 
+nn_backtest_result = runBackTest(nn,backtest_df)
+#xgb_backtest_result = runBackTest(xgb,backtest_df)
 next_games = predictNextGames(next_games)
 
 # ================================ LAYOUT ================================
@@ -115,13 +120,20 @@ if treinar_nn:
   nn.train(X_train,y_train,X_test,y_test)
 
 st.header("Predict LOL")
-model_stats_left,model_stats_center,model_stats_right = st.beta_columns((1,1,1))
-model_stats_left.subheader('NN')
-model_stats_left.text(nn_evaluation)
-model_stats_center.subheader('NN Mounted')
-model_stats_center.text(nn_mounted_evaluation)
-model_stats_right.subheader("Back Tests")
-model_stats_right.text(backtest_result)
+nn_stats_left,nn_stats_center,nn_stats_right = st.beta_columns((1,1,1))
+nn_stats_left.subheader('NN')
+nn_stats_left.text(nn_evaluation)
+nn_stats_center.subheader('NN Mounted')
+nn_stats_center.text(nn_mounted_evaluation)
+nn_stats_right.subheader("Back Tests")
+nn_stats_right.text(nn_backtest_result)
+
+xgb_stats_left,xgb_stats_center,xgb_stats_right = st.beta_columns((1,1,1))
+xgb_stats_left.subheader('XGB')
+xgb_stats_left.text(xgb_evaluation)
+xgb_stats_center.subheader('XGB Mounted')
+xgb_stats_center.text(xgb_mounted_evaluation)
+
 
 selection_left, selection_right = st.beta_columns((1,1))
 blue = selection_left.selectbox("Blue",options=teams_df['team'].values)
@@ -129,6 +141,7 @@ red = selection_right.selectbox("Red",options=teams_df['team'].values)
 
 #X_prediction = nn.prepare_prediction(blue,red)
 nn_prediction,nn_probabilitys = nn.predict(blue,red)
+xgb_prediction,xgb_probabilitys = xgb.predict(blue,red)
 
 selection_left.table(teams_df[teams_df.team == blue].astype('str'))
 selection_right.table(teams_df[teams_df.team == red].astype('str'))
@@ -136,7 +149,7 @@ selection_right.table(teams_df[teams_df.team == red].astype('str'))
 result_left,result_center,result_right =  st.beta_columns(3)
 
 result_left.success(nn_prediction)
-result_right.text(nn_probabilitys)
+result_right.success(xgb_prediction)
 
 
 st.header("Last Players MAtch")
