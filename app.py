@@ -30,10 +30,11 @@ def getGames(years=list(range(2015,dt.datetime.now().year +1,1)),link="https://g
 @st.cache
 def get_all_games(links,years=list(range(2015,dt.datetime.now().year +1,1))):
   df = pd.DataFrame()
-  for link in links.values():
+  for tournment in links:
     for year in years:
-      final_link = link.replace('{}',str(year))
-      result = pd.read_html(requests.get(final_link).text)
+      final_link = links[tournment].replace('{}',str(year))
+      result = pd.read_html(requests.get(final_link).text)[0]
+      result['tournment'] = tournment
       df = df.append(result,ignore_index=True)
   return df
 
