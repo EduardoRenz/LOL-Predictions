@@ -23,6 +23,8 @@ Requirements:
 - Numpy
 - category_encoders
 - sklearn
+- tensorflow
+- keras
 - streamlit
 
 How to run:
