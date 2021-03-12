@@ -17,7 +17,7 @@ Some of features of this project includes:
 - Neural networks
 
 
-Requiriments:
+Requirements:
 - Python > 3.6.5
 - Pandas
 - Numpy
