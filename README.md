@@ -28,3 +28,6 @@ Requiriments:
 How to run:
 
 Install streamlit and run the comand `streamlit run app.py`
+
+
+Source of information: https://gol.gg/tournament/tournament-matchlist/
